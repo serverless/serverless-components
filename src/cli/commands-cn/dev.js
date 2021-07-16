@@ -91,9 +91,14 @@ async function updateDeploymentStatus(cli, instanceInfo, startDebug) {
     case 'active': {
       const {
         state: { lambdaArn, region },
-        outputs: { scf, runtime, namespace },
+        outputs: { scf, namespace },
       } = instanceInfo;
+      let runtime = instanceInfo.outputs.runtime;
       regionStore = region;
+
+      if (!runtime) {
+        runtime = instanceInfo.inputs.runtime;
+      }
 
       let runtimeInfo = runtime;
       let namespaceInfo = namespace;
@@ -113,6 +118,9 @@ async function updateDeploymentStatus(cli, instanceInfo, startDebug) {
         await chinaUtils.stopTencentRemoteLogAndDebug(functionInfo, region, cliEventCallback);
         if (startDebug) {
           await chinaUtils.startTencentRemoteLogAndDebug(functionInfo, region, cliEventCallback);
+          setTimeout(() => {
+            chinaUtils.startTencentRemoteLogAndDebug(functionInfo, region, cliEventCallback);
+          }, 10000);
         }
       }
       cli.log(header, 'grey');
@@ -267,6 +275,13 @@ module.exports = async (config, cli, command) => {
           regionStore,
           cliEventCallback
         );
+        setTimeout(() => {
+          chinaUtils.startTencentRemoteLogAndDebug(
+            functionInfoStore,
+            regionStore,
+            cliEventCallback
+          );
+        }, 10000);
       }
     }
     const deployedInstance = await deploy(sdk, instanceYaml, instanceCredentials);

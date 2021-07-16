@@ -123,35 +123,36 @@ const resolveVariables = (inputs) => {
 };
 
 /**
+ * check if any file exists with the fileName and format, if yes, return the filepath
+ * @param {*} directoryPath
+ * @param {*} fileName
+ * @param{*} formats
+ */
+const getFilePath = (directoryPath, fileName, formats) => {
+  directoryPath = path.resolve(directoryPath);
+  let filePath;
+
+  formats.each((format) => {
+    const filePathWithFormat = path.join(directoryPath, `${fileName}.${format}`);
+    if (fileExistsSync(filePathWithFormat)) {
+      filePath = filePathWithFormat;
+    }
+  });
+
+  return filePath;
+};
+
+/**
  * Reads a serverless component config file in a given directory path
  * @param {*} directoryPath
  */
 const loadComponentConfig = (directoryPath) => {
-  directoryPath = path.resolve(directoryPath);
-  const ymlFilePath = path.join(directoryPath, 'serverless.component.yml');
-  const yamlFilePath = path.join(directoryPath, 'serverless.component.yaml');
-  const jsonFilePath = path.join(directoryPath, 'serverless.component.json');
-  let filePath;
-  let isYaml = false;
   let componentFile;
-
-  // Check to see if exists and is yaml or json file
-  if (fileExistsSync(ymlFilePath)) {
-    filePath = ymlFilePath;
-    isYaml = true;
-  }
-  if (fileExistsSync(yamlFilePath)) {
-    filePath = yamlFilePath;
-    isYaml = true;
-  }
-  if (fileExistsSync(jsonFilePath)) {
-    filePath = jsonFilePath;
-  }
-  if (!filePath) {
-    return null;
-  }
+  const filePath = getFilePath(directoryPath, 'serverless.component', ['yml', 'yaml', 'json']);
+  if (!filePath) return null;
 
   // Read file
+  const isYaml = isYamlFile(filePath);
   if (isYaml) {
     try {
       componentFile = readAndParseSync(filePath);
@@ -175,31 +176,13 @@ const loadComponentConfig = (directoryPath) => {
  * @param {*} directoryPath
  */
 const loadTemplateConfig = (directoryPath) => {
-  directoryPath = path.resolve(directoryPath);
-  const ymlFilePath = path.join(directoryPath, 'serverless.template.yml');
-  const yamlFilePath = path.join(directoryPath, 'serverless.template.yaml');
-  const jsonFilePath = path.join(directoryPath, 'serverless.template.json');
-  let filePath;
-  let isYaml = false;
   let templateFile;
+  const filePath = getFilePath(directoryPath, 'serverless.template', ['yml', 'yaml', 'json']);
 
-  // Check to see if exists and is yaml or json file
-  if (fileExistsSync(ymlFilePath)) {
-    filePath = ymlFilePath;
-    isYaml = true;
-  }
-  if (fileExistsSync(yamlFilePath)) {
-    filePath = yamlFilePath;
-    isYaml = true;
-  }
-  if (fileExistsSync(jsonFilePath)) {
-    filePath = jsonFilePath;
-  }
-  if (!filePath) {
-    return null;
-  }
+  if (!filePath) return null;
 
   // Read file
+  const isYaml = isYamlFile(filePath);
   if (isYaml) {
     try {
       templateFile = readAndParseSync(filePath);
@@ -232,26 +215,8 @@ const isYamlFile = (filename) => {
  * @param {*} filePath
  */
 const getServerlessFilePath = (directoryPath) => {
-  directoryPath = path.resolve(directoryPath);
-  const ymlFilePath = path.join(directoryPath, 'serverless.yml');
-  const yamlFilePath = path.join(directoryPath, 'serverless.yaml');
-  const jsonFilePath = path.join(directoryPath, 'serverless.json');
-  const jsFilePath = path.join(directoryPath, 'serverless.js');
-  let filePath;
+  const filePath = getFilePath(directoryPath, 'serverless', ['yml', 'yaml', 'json', 'js']);
 
-  // Check to see if exists and is yaml or json file
-  if (fileExistsSync(ymlFilePath)) {
-    filePath = ymlFilePath;
-  }
-  if (fileExistsSync(yamlFilePath)) {
-    filePath = yamlFilePath;
-  }
-  if (fileExistsSync(jsonFilePath)) {
-    filePath = jsonFilePath;
-  }
-  if (fileExistsSync(jsFilePath)) {
-    filePath = jsFilePath;
-  }
   if (!filePath) {
     return null;
   }
@@ -296,32 +261,15 @@ const loadParentConfigFile = (directoryPath) => {
  * @param {*} directoryPath
  */
 const loadInstanceConfigUncached = (directoryPath) => {
-  directoryPath = path.resolve(directoryPath);
-  const ymlFilePath = path.join(directoryPath, 'serverless.yml');
-  const yamlFilePath = path.join(directoryPath, 'serverless.yaml');
-  const jsonFilePath = path.join(directoryPath, 'serverless.json');
-  let filePath;
-  let isYaml = false;
   let instanceFile;
-
-  // Check to see if exists and is yaml or json file
-  if (fileExistsSync(ymlFilePath)) {
-    filePath = ymlFilePath;
-    isYaml = true;
-  }
-  if (fileExistsSync(yamlFilePath)) {
-    filePath = yamlFilePath;
-    isYaml = true;
-  }
-  if (fileExistsSync(jsonFilePath)) {
-    filePath = jsonFilePath;
-  }
+  const filePath = getFilePath(directoryPath, 'serverless', ['yml', 'yaml', 'json']);
 
   if (!filePath) {
     return null;
   }
 
   // Read file
+  const isYaml = isYamlFile(filePath);
   if (isYaml) {
     try {
       instanceFile = readAndParseSync(filePath);
@@ -419,26 +367,9 @@ const legacyLoadInstanceConfig = (directoryPath) => {
  * THIS IS USED BY SFV1.  DO NOT MODIFY OR DELETE
  */
 const legacyLoadComponentConfig = (directoryPath) => {
-  directoryPath = path.resolve(directoryPath);
-  const ymlFilePath = path.join(directoryPath, 'serverless.component.yml');
-  const yamlFilePath = path.join(directoryPath, 'serverless.component.yaml');
-  const jsonFilePath = path.join(directoryPath, 'serverless.component.json');
-  let filePath;
-  let isYaml = false;
   let componentFile;
+  const filePath = getFilePath(directoryPath, 'serverless.component', ['yml', 'yaml', 'json']);
 
-  // Check to see if exists and is yaml or json file
-  if (fileExistsSync(ymlFilePath)) {
-    filePath = ymlFilePath;
-    isYaml = true;
-  }
-  if (fileExistsSync(yamlFilePath)) {
-    filePath = yamlFilePath;
-    isYaml = true;
-  }
-  if (fileExistsSync(jsonFilePath)) {
-    filePath = jsonFilePath;
-  }
   if (!filePath) {
     throw new Error(
       'The serverless.component file could not be found in the current working directory.'
@@ -446,6 +377,7 @@ const legacyLoadComponentConfig = (directoryPath) => {
   }
 
   // Read file
+  const isYaml = isYamlFile(filePath);
   if (isYaml) {
     try {
       componentFile = readAndParseSync(filePath);

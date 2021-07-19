@@ -42,6 +42,7 @@ class CLI {
     this._.lastStatus = null;
     this._.debug = config.debug || false;
     this._.timer = config.timer || false;
+    this._.ci = config.ci || false;
     this._.timerStarted = Date.now();
     this._.timerSeconds = 0;
     this._.loadingDots = '';
@@ -507,9 +508,19 @@ class CLI {
     }
 
     /**
-     * Non-Debug Mode
+     * CI Mode
      */
-    if (!this._.debug) {
+    if (this._.ci) {
+      if (this._.status === 'Initializing' && this._.status !== this._.lastStatus) {
+        this.log('enable CI Mode');
+        this._.lastStatus = `${this._.status}`;
+      }
+    }
+
+    /**
+     * Non-Debug and Non CI Mode
+     */
+    if (!this._.debug && !this._.ci) {
       // Update active dots
       if (this._.loadingDotCount === 0) {
         this._.loadingDots = '.';

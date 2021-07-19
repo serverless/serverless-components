@@ -586,11 +586,15 @@ Deploys an Instance of a Component.
 
 `--debug` - Lists `console.log()` statements left in your Component upon `deploy` or any action.
 
+`--ci` - Disable persistent status bar
+
 #### `serverless remove`
 
 Removes an Instance of a Component.
 
 `--debug` - Lists `console.log()` statements left in your Component upon `remove` or any action.
+
+`--ci` - Disable persistent status bar
 
 #### `serverless info`
 
